@@ -1,0 +1,8 @@
+{
+  "name": "WorkSync Pro - Employee Dashboard",
+  "description": "A comprehensive enterprise-grade employee attendance and activity tracking system featuring real-time check-ins, leave management, project tracking, and performance analytics.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
