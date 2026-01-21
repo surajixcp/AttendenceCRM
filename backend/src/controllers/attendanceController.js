@@ -1,142 +1,204 @@
 const Attendance = require('../models/Attendance');
-const Settings = require('../models/Settings');
 const User = require('../models/User');
+const Settings = require('../models/Settings');
 const Leave = require('../models/Leave');
 const Holiday = require('../models/Holiday');
+
+// Helper to calculate distance in meters (Haversine Formula)
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371e3; // Earth radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+};
 
 // @desc    Check in for attendance
 // @route   POST /attendance/checkin
 // @access  Private (Employee)
 const checkIn = async (req, res) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    try {
+        const { location } = req.body;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const existingAttendance = await Attendance.findOne({
-        user: req.user._id,
-        date: today
-    });
+        const existingAttendance = await Attendance.findOne({
+            user: req.user._id,
+            date: today
+        });
 
-    if (existingAttendance) {
-        res.status(400).json({ message: 'You have already checked in today.' });
-        return;
-    }
-
-    // Fetch settings for policy check
-    let settings = await Settings.findOne();
-    if (!settings) {
-        settings = await Settings.create({}); // Default settings
-    }
-
-    const now = new Date();
-    let status = 'present';
-
-    // Late Check-in Logic
-    if (settings.workingHours && settings.workingHours.checkIn) {
-        const [h, m] = settings.workingHours.checkIn.split(':').map(Number);
-        const policyTime = new Date(today);
-        policyTime.setHours(h, m, 0, 0);
-
-        const graceMs = (settings.workingHours.gracePeriod || 0) * 60 * 1000;
-        const limitTime = new Date(policyTime.getTime() + graceMs);
-
-        if (now > limitTime) {
-            status = 'late';
+        if (existingAttendance) {
+            return res.status(400).json({ message: 'You have already checked in today.' });
         }
+
+        let settings = await Settings.findOne() || {};
+
+        // 1. Geofencing Validation
+        if (settings.officeLocation && settings.officeLocation.latitude && settings.officeLocation.longitude) {
+            if (!location || !location.lat || !location.lng) {
+                return res.status(400).json({ message: 'Location access is required for check-in.' });
+            }
+
+            const distance = calculateDistance(
+                location.lat, location.lng,
+                settings.officeLocation.latitude, settings.officeLocation.longitude
+            );
+
+            if (distance > (settings.officeLocation.radius || 100)) {
+                return res.status(403).json({
+                    message: `Location Mismatch. You are ${Math.round(distance)}m away from office. Required radius: ${settings.officeLocation.radius || 100}m.`
+                });
+            }
+        }
+
+        const now = new Date();
+        let status = 'present';
+
+        // 2. Late Check-in Logic
+        if (settings.workingHours && settings.workingHours.checkIn) {
+            const [h, m] = settings.workingHours.checkIn.split(':').map(Number);
+            const policyTime = new Date(today);
+            policyTime.setHours(h, m, 0, 0);
+
+            const graceMs = (settings.workingHours.gracePeriod || 0) * 60 * 1000;
+            const limitTime = new Date(policyTime.getTime() + graceMs);
+
+            if (now > limitTime) {
+                status = 'late';
+            }
+        }
+
+        const attendance = await Attendance.create({
+            user: req.user._id,
+            date: today,
+            checkIn: now,
+            status: status,
+            location: { checkIn: location }
+        });
+
+        res.status(201).json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    const attendance = await Attendance.create({
-        user: req.user._id,
-        date: today,
-        checkIn: now,
-        status: status
-    });
-
-    res.status(201).json(attendance);
 };
 
 // @desc    Check out for attendance
 // @route   POST /attendance/checkout
 // @access  Private (Employee)
 const checkOut = async (req, res) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    try {
+        const { location } = req.body;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const attendance = await Attendance.findOne({
-        user: req.user._id,
-        date: today
-    });
+        const attendance = await Attendance.findOne({
+            user: req.user._id,
+            date: today
+        });
 
-    if (!attendance) {
-        res.status(400).json({ message: 'You have not checked in today.' });
-        return;
+        if (!attendance) {
+            return res.status(400).json({ message: 'Active check-in record not found for today.' });
+        }
+
+        if (attendance.checkOut) {
+            return res.status(400).json({ message: 'You have already checked out today.' });
+        }
+
+        let settings = await Settings.findOne() || {};
+
+        // 1. Protocol: Shift Timing Analysis
+        const now = new Date();
+        const durationMs = now - attendance.checkIn;
+        const hoursWorked = durationMs / (1000 * 60 * 60);
+
+        let standardShift = 9;
+        if (settings.workingHours && settings.workingHours.checkIn && settings.workingHours.checkOut) {
+            const [inH, inM] = settings.workingHours.checkIn.split(':').map(Number);
+            const [outH, outM] = settings.workingHours.checkOut.split(':').map(Number);
+            const shiftStart = inH + (inM / 60);
+            const shiftEnd = outH + (outM / 60);
+
+            let shiftLength = shiftEnd - shiftStart;
+            if (shiftLength < 0) shiftLength += 24;
+            if (shiftLength > 0) standardShift = shiftLength;
+        }
+
+        // Enforce half-day passthrough (user request: "able to click after half times of working day")
+        if (hoursWorked < (standardShift / 2)) {
+            return res.status(403).json({
+                message: `Protocol Restriction: Check-out only allowed after half-shift (${(standardShift / 2).toFixed(1)} hrs). Currently: ${hoursWorked.toFixed(1)} hrs.`
+            });
+        }
+
+        // 2. Geofencing Validation
+        if (settings.officeLocation && settings.officeLocation.latitude && settings.officeLocation.longitude) {
+            if (!location || !location.lat || !location.lng) {
+                return res.status(400).json({ message: 'Location access is required for check-out.' });
+            }
+            const distance = calculateDistance(
+                location.lat, location.lng,
+                settings.officeLocation.latitude, settings.officeLocation.longitude
+            );
+            if (distance > (settings.officeLocation.radius || 100)) {
+                return res.status(403).json({ message: `Location Mismatch. You must be within office proximity to check out.` });
+            }
+        }
+
+        attendance.checkOut = now;
+        attendance.workingHours = hoursWorked.toFixed(2);
+
+        if (hoursWorked > standardShift) {
+            attendance.overtimeHours = (hoursWorked - standardShift).toFixed(2);
+        }
+
+        // Preserve status (present/late) unless hours are extremely low (sanity check)
+        if (hoursWorked < 4 && attendance.status !== 'late') {
+            attendance.status = 'half_day';
+        }
+
+        if (location) {
+            attendance.location.checkOut = location;
+        }
+
+        await attendance.save();
+        res.json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    if (attendance.checkOut) {
-        res.status(400).json({ message: 'You have already checked out today.' });
-        return;
-    }
-
-    attendance.checkOut = new Date();
-
-    // Calculate working hours
-    const duration = attendance.checkOut - attendance.checkIn; // milliseconds
-    const hours = duration / (1000 * 60 * 60);
-    attendance.workingHours = hours.toFixed(2);
-
-    // Dynamic Overtime Calculation
-    let settings = await Settings.findOne();
-    let standardShift = 9; // Default fallback (hours)
-
-    if (settings && settings.workingHours && settings.workingHours.checkIn && settings.workingHours.checkOut) {
-        const [inH, inM] = settings.workingHours.checkIn.split(':').map(Number);
-        const [outH, outM] = settings.workingHours.checkOut.split(':').map(Number);
-
-        // Calculate shift length in hours
-        const shiftStart = inH + (inM / 60);
-        const shiftEnd = outH + (outM / 60);
-
-        let shiftLength = shiftEnd - shiftStart;
-        if (shiftLength < 0) shiftLength += 24; // Handling night shifts
-
-        if (shiftLength > 0) standardShift = shiftLength;
-    }
-
-    if (hours > standardShift) {
-        attendance.overtimeHours = (hours - standardShift).toFixed(2);
-    }
-
-    // Mark as half-day if hours are significantly low (e.g., < 4 hours)
-    if (hours < 4 && hours > 0) {
-        attendance.status = 'half_day';
-    }
-
-    await attendance.save();
-
-    res.json(attendance);
 };
 
 // @desc    Get daily attendance for a user
 // @route   GET /attendance/daily/:userId
 // @access  Private
 const getDailyAttendance = async (req, res) => {
-    // Only admin/sub-admin can view others, or the user themselves
-    if (req.user.role === 'employee' && req.user._id.toString() !== req.params.userId) {
-        res.status(401).json({ message: 'Not authorized to view this attendance' });
-        return;
-    }
+    try {
+        // Only admin/sub-admin can view others, or the user themselves
+        if (req.user.role === 'employee' && req.user._id.toString() !== req.params.userId) {
+            return res.status(401).json({ message: 'Not authorized to view this attendance' });
+        }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const attendance = await Attendance.findOne({
-        user: req.params.userId,
-        date: today
-    });
+        const attendance = await Attendance.findOne({
+            user: req.params.userId,
+            date: today
+        });
 
-    if (attendance) {
-        res.json(attendance);
-    } else {
-        res.json(null);
+        if (attendance) {
+            res.json(attendance);
+        } else {
+            res.json(null);
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -144,120 +206,164 @@ const getDailyAttendance = async (req, res) => {
 // @route   GET /attendance/monthly/:userId
 // @access  Private
 const getMonthlyAttendance = async (req, res) => {
-    if (req.user.role === 'employee' && req.user._id.toString() !== req.params.userId) {
-        res.status(401).json({ message: 'Not authorized to view this attendance' });
-        return;
-    }
-
-    const { month, year } = req.query;
-
-    if (!month || !year) {
-        res.status(400).json({ message: 'Please provide month and year' });
-        return;
-    }
-
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-
-    const attendanceList = await Attendance.find({
-        user: req.params.userId,
-        date: { $gte: startDate, $lte: endDate }
-    }).sort({ date: 1 });
-
-    // Fetch Holidays for this period
-    const holidays = await Holiday.find({
-        date: { $gte: startDate, $lte: endDate }
-    });
-
-    // Merge holidays into attendance list if no log exists
-    holidays.forEach(h => {
-        const hDate = new Date(h.date);
-        hDate.setHours(0, 0, 0, 0);
-
-        const hasLog = attendanceList.some(a => {
-            const d = new Date(a.date);
-            d.setHours(0, 0, 0, 0);
-            return d.getTime() === hDate.getTime();
-        });
-
-        if (!hasLog) {
-            attendanceList.push({
-                user: req.params.userId,
-                date: h.date,
-                status: 'holiday',
-                leaveType: h.name, // Use holiday name as leaveType if helpful
-                isMissingRecord: true
-            });
-        }
-    });
-
-    attendanceList.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // Proactive detection for "Today" if it falls within the month/year
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (today >= startDate && today <= endDate) {
-        // Fetch user to check joining date
-        const user = await User.findById(req.params.userId).select('joiningDate');
-
-        const jDate = user && user.joiningDate ? new Date(user.joiningDate) : null;
-        if (jDate) jDate.setHours(0, 0, 0, 0);
-
-        // Skip if today is before joining person
-        if (jDate && today < jDate) {
-            return res.json(attendanceList);
+    try {
+        if (req.user.role === 'employee' && req.user._id.toString() !== req.params.userId) {
+            return res.status(401).json({ message: 'Not authorized to view this attendance' });
         }
 
-        const hasTodayRecord = attendanceList.some(a => {
-            const d = new Date(a.date);
-            d.setHours(0, 0, 0, 0);
-            return d.getTime() === today.getTime();
+        const { month, year } = req.query;
+
+        if (!month || !year) {
+            return res.status(400).json({ message: 'Please provide month and year' });
+        }
+
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
+
+        const attendanceList = await Attendance.find({
+            user: req.params.userId,
+            date: { $gte: startDate, $lte: endDate }
+        }).sort({ date: 1 });
+
+        // Fetch user's joining date
+        const user = await User.findById(req.params.userId);
+        let joiningDate = null;
+        if (user && user.joiningDate) {
+            joiningDate = new Date(user.joiningDate);
+            joiningDate.setHours(0, 0, 0, 0);
+        }
+
+        // Fetch Holidays for this period
+        const holidays = await Holiday.find({
+            date: { $gte: startDate, $lte: endDate }
         });
 
-        if (!hasTodayRecord) {
-            // Re-use logic from getAllAttendance for consistency
-            const startOfToday = new Date(today);
-            const endOfToday = new Date(today);
-            endOfToday.setHours(23, 59, 59, 999);
+        // Merge holidays into attendance list if no log exists
+        holidays.forEach(h => {
+            const hDate = new Date(h.date);
+            hDate.setHours(0, 0, 0, 0);
 
-            const leave = await Leave.findOne({
-                user: req.params.userId,
-                status: 'approved',
-                $or: [
-                    { startDate: { $lte: endOfToday }, endDate: { $gte: startOfToday } },
-                    { startDate: { $gte: startOfToday, $lte: endOfToday } }
-                ]
+            const hasLog = attendanceList.some(a => {
+                const d = new Date(a.date);
+                d.setHours(0, 0, 0, 0);
+                return d.getTime() === hDate.getTime();
             });
 
-            let status = 'absent';
-            let leaveType = null;
+            if (!hasLog) {
+                attendanceList.push({
+                    user: req.params.userId,
+                    date: h.date,
+                    status: 'holiday',
+                    leaveType: h.name,
+                    isMissingRecord: true
+                });
+            }
+        });
 
-            if (leave) {
-                status = 'leave';
-                leaveType = leave.leaveType;
-            } else {
-                const settings = await Settings.findOne() || {};
-                const weekendPolicy = settings.weekendPolicy || ['Sat', 'Sun'];
-                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                const dayName = dayNames[today.getDay()];
-                if (weekendPolicy.includes(dayName)) {
-                    status = 'weekend';
-                }
+        // Filter for Missing Records (Abscence check excluding today)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const settings = await Settings.findOne() || {};
+        const weekendPolicy = settings.weekendPolicy || ['Sat', 'Sun'];
+
+        for (let d = new Date(startDate); d <= (endDate < today ? endDate : new Date(today.getTime() - 86400000)); d.setDate(d.getDate() + 1)) {
+            const currentD = new Date(d);
+            currentD.setHours(0, 0, 0, 0);
+
+            // Skip dates before joining date
+            if (joiningDate && currentD < joiningDate) {
+                continue;
             }
 
-            // Push a virtual record for today
-            attendanceList.push({
-                user: req.params.userId,
-                date: today,
-                status,
-                leaveType,
-                isMissingRecord: true
+            const hasRecord = attendanceList.some(a => {
+                const ad = new Date(a.date);
+                ad.setHours(0, 0, 0, 0);
+                return ad.getTime() === currentD.getTime();
             });
-        }
-    }
 
-    res.json(attendanceList);
+            if (!hasRecord) {
+                // Check if weekend
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const dayName = dayNames[currentD.getDay()];
+
+                if (!weekendPolicy.includes(dayName)) {
+                    // Check if on approved leave
+                    const leave = await Leave.findOne({
+                        user: req.params.userId,
+                        status: 'approved',
+                        startDate: { $lte: currentD },
+                        endDate: { $gte: currentD }
+                    });
+
+                    let status = 'absent';
+                    let leaveType = '';
+
+                    if (leave) {
+                        status = leave.leaveDuration === 0.5 ? 'half_day' : 'leave';
+                        leaveType = leave.leaveType || '';
+                    }
+
+                    attendanceList.push({
+                        user: req.params.userId,
+                        date: new Date(currentD),
+                        status,
+                        leaveType,
+                        isMissingRecord: true
+                    });
+                }
+            }
+        }
+
+        // Logic for today (if in current month) - Check if weekend or on leave if not checked in
+        if (today >= startDate && today <= endDate) {
+            // Skip if employee hasn't joined yet
+            if (!joiningDate || today >= joiningDate) {
+                const hasToday = attendanceList.some(a => {
+                    const ad = new Date(a.date);
+                    ad.setHours(0, 0, 0, 0);
+                    return ad.getTime() === today.getTime();
+                });
+
+                if (!hasToday) {
+                    // Determine if it's a weekend or approved leave
+                    const leave = await Leave.findOne({
+                        user: req.params.userId,
+                        status: 'approved',
+                        startDate: { $lte: today },
+                        endDate: { $gte: today }
+                    });
+
+                    let status = 'absent'; // Default for "not yet checked in"
+                    let leaveType = '';
+
+                    if (leave) {
+                        status = leave.leaveDuration === 0.5 ? 'half_day' : 'leave';
+                        leaveType = leave.leaveType || '';
+                    } else {
+                        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                        const dayName = dayNames[today.getDay()];
+                        if (weekendPolicy.includes(dayName)) {
+                            status = 'weekend';
+                        }
+                    }
+
+                    // Push a virtual record for today
+                    attendanceList.push({
+                        user: req.params.userId,
+                        date: new Date(today),
+                        status,
+                        leaveType,
+                        isMissingRecord: true
+                    });
+                }
+            }
+        }
+
+        res.json(attendanceList.sort((a, b) => new Date(a.date) - new Date(b.date)));
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 

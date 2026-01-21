@@ -32,6 +32,11 @@ const settingsSchema = new mongoose.Schema({
     payroll: {
         monthlyBudget: { type: Number, default: 0 },
         salaryDate: { type: Number, default: 1 } // Day of the month (1-31)
+    },
+    officeLocation: {
+        latitude: { type: Number },
+        longitude: { type: Number },
+        radius: { type: Number, default: 100 } // Accuracy radius in meters
     }
 }, {
     timestamps: true

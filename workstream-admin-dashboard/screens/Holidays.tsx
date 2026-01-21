@@ -113,8 +113,8 @@ const Holidays: React.FC = () => {
             </div>
           </div>
           <div className="grid grid-cols-7 gap-1 text-center mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{day}</div>
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+              <div key={`day-header-${index}`} className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{day}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">

@@ -24,6 +24,11 @@ export interface CompanySettings {
         monthlyBudget: number;
         salaryDate: number;
     };
+    officeLocation: {
+        latitude: number;
+        longitude: number;
+        radius: number;
+    };
 }
 
 export const settingService = {

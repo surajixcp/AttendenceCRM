@@ -35,6 +35,16 @@ const attendanceSchema = new mongoose.Schema({
     leaveDuration: {
         type: Number,
         default: 0 // 1 for full day, 0.5 for half day
+    },
+    location: {
+        checkIn: {
+            lat: Number,
+            lng: Number
+        },
+        checkOut: {
+            lat: Number,
+            lng: Number
+        }
     }
 }, {
     timestamps: true

@@ -25,7 +25,12 @@ const Settings: React.FC = () => {
       gracePeriod: 15,
       checkOut: '18:00'
     },
-    weekendPolicy: ['Sat', 'Sun']
+    weekendPolicy: ['Sat', 'Sun'],
+    officeLocation: {
+      latitude: 0,
+      longitude: 0,
+      radius: 100
+    }
   });
 
   useEffect(() => {
@@ -336,8 +341,8 @@ const Settings: React.FC = () => {
               Weekend Policy
             </h4>
             <div className="flex flex-wrap gap-2">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                <label key={day} className={`flex items-center space-x-2 cursor-pointer p-2 px-3 rounded-lg border transition-all ${companySettings.weekendPolicy.includes(day)
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+                <label key={`weekend-${index}-${day}`} className={`flex items-center space-x-2 cursor-pointer p-2 px-3 rounded-lg border transition-all ${companySettings.weekendPolicy.includes(day)
                   ? 'bg-blue-600 border-blue-600 text-white'
                   : 'bg-slate-50 dark:bg-slate-950/30 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                   }`}>
@@ -351,6 +356,59 @@ const Settings: React.FC = () => {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-blue-600 rounded-full"></div>
+              Office Geofencing
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <label className={labelClasses}>Latitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={companySettings.officeLocation?.latitude === 0 ? '' : companySettings.officeLocation?.latitude}
+                  onChange={(e) => setCompanySettings({
+                    ...companySettings,
+                    officeLocation: { ...companySettings.officeLocation, latitude: e.target.value === '' ? 0 : parseFloat(e.target.value) }
+                  })}
+                  className={inputClasses}
+                  placeholder="e.g. 28.6139"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses}>Longitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={companySettings.officeLocation?.longitude === 0 ? '' : companySettings.officeLocation?.longitude}
+                  onChange={(e) => setCompanySettings({
+                    ...companySettings,
+                    officeLocation: { ...companySettings.officeLocation, longitude: e.target.value === '' ? 0 : parseFloat(e.target.value) }
+                  })}
+                  className={inputClasses}
+                  placeholder="e.g. 77.2090"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses}>Radius (Meters)</label>
+                <input
+                  type="number"
+                  value={companySettings.officeLocation?.radius || 100}
+                  onChange={(e) => setCompanySettings({
+                    ...companySettings,
+                    officeLocation: { ...companySettings.officeLocation, radius: parseInt(e.target.value) || 100 }
+                  })}
+                  className={inputClasses}
+                  placeholder="100"
+                />
+              </div>
+            </div>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-normal">
+              Employees can only check-in/out within this radius. Set to 0 to disable geofencing.
+            </p>
           </div>
 
           <div className="pt-2 flex justify-end">

@@ -1,13 +1,13 @@
 import api from './api';
 
 export const attendanceService = {
-    checkIn: async () => {
-        const response = await api.post('/attendance/checkin');
+    checkIn: async (location?: { lat: number; lng: number }) => {
+        const response = await api.post('/attendance/checkin', { location });
         return response.data;
     },
 
-    checkOut: async () => {
-        const response = await api.post('/attendance/checkout');
+    checkOut: async (location?: { lat: number; lng: number }) => {
+        const response = await api.post('/attendance/checkout', { location });
         return response.data;
     },
 

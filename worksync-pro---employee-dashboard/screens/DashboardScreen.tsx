@@ -39,10 +39,6 @@ interface DashboardProps {
 
 const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const [checkInTime, setCheckInTime] = useState<string | null>(null);
-  const [checkInLoc, setCheckInLoc] = useState<string | null>(null);
-
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
@@ -50,6 +46,20 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [user, setUser] = useState<any>(null);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [companySettings, setCompanySettings] = useState<any>(null);
+
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [checkInTime, setCheckInTime] = useState<string | null>(null);
+  const [isCheckedOut, setIsCheckedOut] = useState(false);
+  const [isHalfShiftPassed, setIsHalfShiftPassed] = useState(false);
+  const [dailyRecord, setDailyRecord] = useState<any>(null);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -73,6 +83,26 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
+  useEffect(() => {
+    if (isCheckedIn && dailyRecord && companySettings?.workingHours) {
+      const checkProtocol = () => {
+        const checkInDate = new Date(dailyRecord.checkIn);
+        const now = new Date();
+        const diffHrs = (now.getTime() - checkInDate.getTime()) / (1000 * 60 * 60);
+
+        const [inH, inM] = companySettings.workingHours.checkIn.split(':').map(Number);
+        const [outH, outM] = companySettings.workingHours.checkOut.split(':').map(Number);
+        let shiftLen = (outH + outM / 60) - (inH + inM / 60);
+        if (shiftLen < 0) shiftLen += 24;
+
+        setIsHalfShiftPassed(diffHrs >= (shiftLen / 2));
+      };
+      checkProtocol();
+      const i = setInterval(checkProtocol, 60000);
+      return () => clearInterval(i);
+    }
+  }, [isCheckedIn, dailyRecord, companySettings]);
+
   const fetchDashboardData = async () => {
     try {
       const storedUser = localStorage.getItem('user');
@@ -84,22 +114,26 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
       // 1. Check Attendance Status (Daily)
       try {
         const daily = await attendanceService.getDailyAttendance(userId);
-        if (daily && daily.checkIn && !daily.checkOut) {
+        setDailyRecord(daily);
+        if (daily && daily.checkIn) {
           setIsCheckedIn(true);
           setCheckInTime(new Date(daily.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          if (daily.checkOut) {
+            setIsCheckedOut(true);
+          }
         } else {
           setIsCheckedIn(false);
+          setIsCheckedOut(false);
           setCheckInTime(null);
         }
       } catch (e) {
-        // No record found likely means not checked in
         setIsCheckedIn(false);
+        setIsCheckedOut(false);
       }
-
-      // 2. Weekly Activity (Fetching monthly for now and filtering)
+      // ... rest of fetch calls ...
+      // (Lines 99-133 omitted for brevity, keeping existing logic)
       const date = new Date();
       const logs = await attendanceService.getMonthlyAttendance(userId, date.getMonth() + 1, date.getFullYear());
-      // Process logs for chart (last 7 days or current week)
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const chartData = days.map(day => ({ name: day, hours: 0 }));
       if (Array.isArray(logs)) {
@@ -112,19 +146,15 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
       }
       setWeeklyData(chartData);
 
-      // 3. Meetings
       const myMeetings = await meetingService.getMyMeetings();
       setMeetings(Array.isArray(myMeetings) ? myMeetings.map((m: any) => ({ ...m, id: m._id })) : []);
 
-      // 4. Projects
       const myProjects = await projectService.getMyProjects();
       setProjects(Array.isArray(myProjects) ? myProjects : []);
 
-      // 5. Leaves
       const myLeaves = await leaveService.getMyLeaves();
       setLeaves(Array.isArray(myLeaves) ? myLeaves : []);
 
-      // 6. Holidays
       const allHolidays = await holidayService.getAllHolidays();
       setHolidays(Array.isArray(allHolidays) ? allHolidays.map((h: any) => ({ ...h, id: h._id })) : []);
 
@@ -133,28 +163,45 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleCheckInOut = async () => {
+  const getLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) reject(new Error("Geolocation not supported"));
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => reject(err)
+      );
+    });
+  };
+
+  const handleCheckIn = async () => {
     try {
-      if (!isCheckedIn) {
-        await attendanceService.checkIn();
-        setIsCheckedIn(true);
-        setCheckInTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            setCheckInLoc(`${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`);
-          });
-        }
-      } else {
-        await attendanceService.checkOut();
-        setIsCheckedIn(false);
-        setCheckInTime(null);
-        setCheckInLoc(null);
-      }
-      // Refresh data
-      // fetchDashboardData(); 
-    } catch (error) {
-      console.error("Check-in/out failed", error);
-      alert("Action failed. Please try again.");
+      setNotification({ type: 'info', message: 'Detecting live location...' });
+      const loc = await getLocation();
+      await attendanceService.checkIn(loc);
+      setNotification({ type: 'success', message: 'Check-in Synchronized Successfully!' });
+      fetchDashboardData();
+    } catch (error: any) {
+      console.error("Check-in failed", error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.message || "Check-in failed. Ensure location is enabled."
+      });
+    }
+  };
+
+  const handleCheckOut = async () => {
+    try {
+      setNotification({ type: 'info', message: 'Detecting live location...' });
+      const loc = await getLocation();
+      await attendanceService.checkOut(loc);
+      setNotification({ type: 'success', message: 'Check-out Synchronized Successfully!' });
+      fetchDashboardData();
+    } catch (error: any) {
+      console.error("Check-out failed", error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.message || "Check-out failed. Ensure location is enabled."
+      });
     }
   };
 
@@ -173,10 +220,33 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
             <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Productivity Engine</span>
           </div>
           <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none uppercase">{user?.name?.split(' ')[0] || 'Employee'}'s Dashboard</h2>
-          <p className="text-slate-500 dark:text-slate-400 font-bold text-[9px] mt-1.5 flex items-center gap-2 uppercase tracking-tight">
-            Weekly Sync Status: <span className="text-blue-600 dark:text-blue-400 font-black">85% COMPLETE</span>
-          </p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <p className="text-slate-500 dark:text-slate-400 font-bold text-[9px] flex items-center gap-2 uppercase tracking-tight leading-none">
+              Weekly Sync Status: <span className="text-blue-600 dark:text-blue-400 font-black">85% COMPLETE</span>
+            </p>
+            {dailyRecord?.status === 'late' && (
+              <span className="flex items-center gap-1 text-[7px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-100 dark:border-rose-500/20 uppercase tracking-widest">
+                <Clock className="w-2 h-2" />
+                LATE ENTRY
+              </span>
+            )}
+          </div>
         </div>
+
+        {notification && (
+          <div className={`fixed top-6 right-6 z-[100] animate-in slide-in-from-top-4 fade-in duration-300 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-xl flex items-center gap-3 ${notification.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' :
+            notification.type === 'error' ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400' :
+              'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400'
+            }`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${notification.type === 'success' ? 'bg-emerald-500 text-white' :
+              notification.type === 'error' ? 'bg-rose-500 text-white' :
+                'bg-blue-500 text-white'
+              }`}>
+              {notification.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+            </div>
+            <p className="text-[11px] font-black uppercase tracking-tight">{notification.message}</p>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 animate-in slide-in-from-right duration-700">
           <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl w-full lg:w-auto px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-800/50 flex items-center gap-3 shadow-lg dark:shadow-2xl">
@@ -224,16 +294,31 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </div>
                   </div>
                 )}
-                <button
-                  onClick={handleCheckInOut}
-                  className={`w-full py-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm ${isCheckedIn
-                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/10'
-                    }`}
-                >
-                  {isCheckedIn ? 'Execute Exit' : 'Initialize Entry'}
-                  <ArrowRight className="w-3 h-3" />
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleCheckIn}
+                    disabled={isCheckedIn}
+                    className={`w-full py-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm ${isCheckedIn
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/10 shadow-lg'
+                      }`}
+                  >
+                    Check In
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={handleCheckOut}
+                    disabled={!isCheckedIn || isCheckedOut || !isHalfShiftPassed}
+                    className={`w-full py-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm ${(!isCheckedIn || isCheckedOut || !isHalfShiftPassed)
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700'
+                      : 'bg-rose-600 text-white hover:bg-rose-700 shadow-rose-500/10 shadow-lg'
+                      }`}
+                    title={!isHalfShiftPassed && isCheckedIn ? "Check-out allowed after half-shift" : ""}
+                  >
+                    Check Out
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -263,7 +348,7 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
               <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none">
                   <Navigation className="w-3 h-3" />
-                  {checkInLoc ? `${checkInLoc}` : 'Geofence Active'}
+                  {dailyRecord?.location?.checkIn ? `${dailyRecord.location.checkIn.lat.toFixed(2)}, ${dailyRecord.location.checkIn.lng.toFixed(2)}` : 'Geofence Active'}
                 </div>
               </div>
             </div>
