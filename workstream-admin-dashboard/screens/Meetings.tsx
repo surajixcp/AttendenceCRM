@@ -118,38 +118,40 @@ const Meetings: React.FC = () => {
     <div className="flex flex-col w-full h-full space-y-4 relative z-0">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase">Meetings & Events</h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase">Coordinate team collaboration</p>
+          <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1">Meetings & Events</h2>
+          <p className="text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">Coordinate team collaboration</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowModal(true); }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase shadow-lg flex items-center"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/10 transition-all active:scale-95 flex items-center justify-center"
         >
-          <Icons.Plus className="w-3.5 h-3.5" />
-          <span className="ml-1.5">Schedule Meeting</span>
+          <Icons.Plus className="w-3 md:w-3.5 h-3 md:h-3.5" />
+          <span className="ml-1 md:ml-1.5">Schedule</span>
         </button>
       </div>
 
       {/* MEETING GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {meetings.length > 0 ? meetings.map((meeting) => (
-          <div key={meeting.id} className="p-4 bg-white dark:bg-slate-900/40 rounded-xl border shadow-sm relative">
-            <div className="flex justify-between">
-              <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg"><Icons.Meetings className="w-4 h-4" /></div>
-              <div className="flex space-x-1 opacity-100">
-                <button onClick={() => handleEdit(meeting)} className="text-blue-600">✎</button>
-                <button onClick={() => handleDelete(meeting.id)} className="text-red-600">🗑</button>
+          <div key={meeting.id} className="p-3 md:p-4 bg-white dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-800/50 shadow-sm relative flex flex-col hover:border-blue-500 transition-all group">
+            <div className="flex justify-between items-start mb-2">
+              <div className="p-1.5 md:p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg shrink-0">
+                <Icons.Meetings className="w-3 md:w-4 h-3 md:h-4 text-blue-600" />
+              </div>
+              <div className="flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => handleEdit(meeting)} className="p-1 text-slate-400 hover:text-blue-600 transition-colors text-[10px]">✎</button>
+                <button onClick={() => handleDelete(meeting.id)} className="p-1 text-slate-400 hover:text-red-600 transition-colors text-[10px]">🗑</button>
               </div>
             </div>
 
-            <h3 className="text-sm font-black mt-2 uppercase">{meeting.title}</h3>
-            <p className="text-[11px] text-slate-500 mt-1">{meeting.description}</p>
+            <h3 className="text-[11px] md:text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white truncate line-clamp-1">{meeting.title}</h3>
+            <p className="text-[9px] md:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2 leading-tight flex-1">{meeting.description}</p>
 
-            <div className="mt-3 text-[10px] flex flex-col gap-[4px]">
-              <span>📅 {meeting.date}</span>
-              <span>⏰ {meeting.time}</span>
+            <div className="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[8px] md:text-[10px] flex flex-col gap-1 text-slate-500 font-bold uppercase tracking-tight">
+              <span className="flex items-center gap-1">📅 {meeting.date}</span>
+              <span className="flex items-center gap-1">⏰ {meeting.time}</span>
             </div>
           </div>
         )) : (

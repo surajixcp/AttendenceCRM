@@ -178,16 +178,16 @@ const Projects: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Active Projects</h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">Track development progress and team workloads</p>
+          <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Active Projects</h2>
+          <p className="text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">Track development progress and team workloads</p>
         </div>
         {isAdmin && (
           <button
             onClick={openAddModal}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
+            className="bg-blue-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
           >
-            <Icons.Plus className="w-3.5 h-3.5" />
-            <span className="ml-1.5">New Project</span>
+            <Icons.Plus className="w-3 md:w-3.5 h-3 md:h-3.5" />
+            <span className="ml-1 md:ml-1.5">New Project</span>
           </button>
         )}
       </div>
@@ -203,15 +203,15 @@ const Projects: React.FC = () => {
             placeholder="Search projects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 rounded-lg text-[11px] font-bold focus:ring-2 focus:ring-blue-500/50 outline-none transition-all dark:text-slate-200"
+            className="w-full pl-8 md:pl-9 pr-3 py-1.5 md:py-2 bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 rounded-lg text-[10px] md:text-[11px] font-bold focus:ring-2 focus:ring-blue-500/50 outline-none transition-all dark:text-slate-200"
           />
         </div>
-        <div className="flex gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+        <div className="flex gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-hide no-scrollbar">
           {['All', 'In Progress', 'Pending', 'Completed'].map(status => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === status
+              className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === status
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/10'
                 : 'bg-white dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
@@ -223,13 +223,13 @@ const Projects: React.FC = () => {
       </div>
 
       {/* Project Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {filteredProjects.map((project) => (
-          <div key={project.id} className="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col hover:border-blue-500 dark:hover:border-blue-500/50 transition-all group relative overflow-hidden">
-            <div className="flex justify-between items-start mb-3 relative">
+          <div key={project.id} className="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col hover:border-blue-500 dark:hover:border-blue-500/50 transition-all group relative overflow-hidden">
+            <div className="flex justify-between items-start mb-2 md:mb-3 relative">
               <div className="max-w-[70%]">
-                <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1 truncate uppercase tracking-tight">{project.name}</h3>
-                <span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-md ${project.status === 'Completed' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20' :
+                <h3 className="text-[11px] md:text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-0.5 md:mb-1 truncate uppercase tracking-tight">{project.name}</h3>
+                <span className={`inline-block px-1 md:px-1.5 py-0.5 text-[7px] md:text-[8px] font-black uppercase tracking-widest rounded-md ${project.status === 'Completed' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20' :
                   project.status === 'Pending' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20' : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20'
                   }`}>
                   {project.status}
@@ -255,12 +255,12 @@ const Projects: React.FC = () => {
               </div>
             </div>
 
-            <div className="mb-4 flex-1">
-              <div className="flex justify-between items-end mb-1.5">
-                <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Progress</span>
-                <span className="text-[10px] font-black text-slate-900 dark:text-slate-200">{project.progress}%</span>
+            <div className="mb-3 md:mb-4 flex-1">
+              <div className="flex justify-between items-end mb-1 md:mb-1.5">
+                <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Progress</span>
+                <span className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-slate-200">{project.progress}%</span>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 md:h-1.5 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-1000 ease-out ${project.progress === 100 ? 'bg-emerald-500' : 'bg-blue-600'}`}
                   style={{ width: `${project.progress}%` }}
@@ -268,22 +268,22 @@ const Projects: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/50 mt-auto">
-              <div className="flex -space-x-1.5">
+            <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-slate-100 dark:border-slate-800/50 mt-auto">
+              <div className="flex -space-x-1 md:-space-x-1.5">
                 {project.members && project.members.map((member, i) => (
-                  <div key={i} className="w-6 h-6 rounded-lg border border-white dark:border-slate-900 bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-[8px] font-black text-blue-600 dark:text-blue-400 shadow-sm overflow-hidden" title={member}>
+                  <div key={i} className="w-5 h-5 md:w-6 md:h-6 rounded-lg border border-white dark:border-slate-900 bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-[7px] md:text-[8px] font-black text-blue-600 dark:text-blue-400 shadow-sm overflow-hidden" title={member}>
                     {member ? member[0] : '?'}
                   </div>
                 ))}
                 {(!project.members || project.members.length === 0) && (
-                  <div className="w-6 h-6 rounded-lg border border-white dark:border-slate-900 bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[8px] font-black text-slate-400">
+                  <div className="w-5 h-5 md:w-6 md:h-6 rounded-lg border border-white dark:border-slate-900 bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[7px] md:text-[8px] font-black text-slate-400">
                     +
                   </div>
                 )}
               </div>
               <div className="text-right">
-                <p className="text-[8px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-tighter">Deadline</p>
-                <div className={`text-[9px] font-black transition-colors ${new Date(project.deadline) < new Date() ? 'text-rose-600' : 'text-slate-600 dark:text-slate-300'}`}>
+                <p className="text-[7px] md:text-[8px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-tighter leading-none mb-0.5">Deadline</p>
+                <div className={`text-[8px] md:text-[9px] font-black transition-colors ${new Date(project.deadline) < new Date() ? 'text-rose-600' : 'text-slate-600 dark:text-slate-300'}`}>
                   {project.deadline}
                 </div>
               </div>

@@ -139,18 +139,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-3.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 hover:border-blue-500/30 transition-all group overflow-hidden relative aspect-square flex flex-col justify-between"
+            className="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-3 md:p-3.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 hover:border-blue-500/30 transition-all group overflow-hidden relative md:aspect-square flex flex-col justify-between"
           >
             <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br opacity-[0.03] dark:opacity-[0.07] rounded-bl-full transform translate-x-2 -translate-y-2 group-hover:scale-150 transition-transform duration-500 from-blue-500 to-indigo-600"></div>
             <div className="flex justify-between items-start relative z-10">
-              <div className={`p-2 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg shadow-blue-500/10`}>
+              <div className={`p-1.5 md:p-2 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg shadow-blue-500/10`}>
                 {stat.icon}
               </div>
             </div>
-            <div className="space-y-0.5 relative z-10">
-              <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</p>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">{stat.value}</h3>
-              <p className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">{stat.sub}</p>
+            <div className="space-y-0.5 relative z-10 mt-2 md:mt-0">
+              <p className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</p>
+              <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tighter">{stat.value}</h3>
+              <p className="text-[7px] md:text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">{stat.sub}</p>
             </div>
           </div>
         ))}
@@ -180,7 +180,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="h-[260px] w-full">
+          <div className="h-[200px] md:h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={attendanceChartData} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800/50" />
@@ -246,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         {/* Status Pie */}
         <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col">
           <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight mb-6">Staff Distribution</h3>
-          <div className="h-[220px] relative flex-1">
+          <div className="h-[180px] md:h-[220px] relative flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie

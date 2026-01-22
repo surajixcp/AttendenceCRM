@@ -86,40 +86,40 @@ const Holidays: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Company Holidays</h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">Scheduled events for {currentMonth.getFullYear()}</p>
+          <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Company Holidays</h2>
+          <p className="text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">Scheduled events for {currentMonth.getFullYear()}</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 flex items-center shadow-lg shadow-blue-500/10 transition-all active:scale-95"
+          className="bg-blue-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/10 transition-all active:scale-95"
         >
-          <Icons.Plus className="w-3.5 h-3.5" />
-          <span className="ml-1.5">Add Holiday</span>
+          <Icons.Plus className="w-3 md:w-3.5 h-3 md:h-3.5" />
+          <span className="ml-1 md:ml-1.5">Add Holiday</span>
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Calendar View */}
-        <div className="lg:col-span-3 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 p-3 md:p-4">
+          <div className="flex justify-between items-center mb-3 md:mb-4">
+            <h3 className="font-black text-[12px] md:text-sm text-slate-900 dark:text-white uppercase tracking-tight">
               {currentMonth.toLocaleString('default', { month: 'long' })} {currentMonth.getFullYear()}
             </h3>
-            <div className="flex space-x-2">
-              <button onClick={prevMonth} className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400">&larr;</button>
-              <button onClick={nextMonth} className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400">&rarr;</button>
+            <div className="flex space-x-1.5 md:space-x-2">
+              <button onClick={prevMonth} className="p-1 md:p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 text-xs md:text-sm">prev</button>
+              <button onClick={nextMonth} className="p-1 md:p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 text-xs md:text-sm">next</button>
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center mb-2">
+          <div className="grid grid-cols-7 gap-1 text-center mb-1.5 md:mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-              <div key={`day-header-${index}`} className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{day}</div>
+              <div key={`day-header-${index}`} className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{day}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
             {Array.from({ length: firstDayOfMonth(currentMonth) }).map((_, i) => (
-              <div key={`empty-${i}`} className="h-16 md:h-20 bg-slate-50/30 dark:bg-slate-950/30 rounded-lg opacity-30"></div>
+              <div key={`empty-${i}`} className="h-10 md:h-20 bg-slate-50/30 dark:bg-slate-950/30 rounded-lg opacity-30"></div>
             ))}
             {Array.from({ length: daysInMonth(currentMonth) }, (_, i) => {
               const dayNum = i + 1;
@@ -127,10 +127,10 @@ const Holidays: React.FC = () => {
               const holiday = holidays.find(h => h.date.split('T')[0] === dateStr);
 
               return (
-                <div key={i} className={`h-16 md:h-20 border border-slate-100 dark:border-slate-800 rounded-lg p-2 flex flex-col transition-all group hover:border-blue-500 dark:hover:border-blue-500/50 ${holiday ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-slate-900/50'}`}>
-                  <span className={`text-xs font-black ${holiday ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`}>{dayNum}</span>
+                <div key={i} className={`h-10 md:h-20 border border-slate-100 dark:border-slate-800 rounded-lg p-1 md:p-2 flex flex-col transition-all group hover:border-blue-500 dark:hover:border-blue-500/50 ${holiday ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-slate-900/50'}`}>
+                  <span className={`text-[10px] md:text-xs font-black ${holiday ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`}>{dayNum}</span>
                   {holiday && (
-                    <div className="mt-1 text-white text-[7px] font-black overflow-hidden truncate leading-tight uppercase tracking-tighter">
+                    <div className="mt-0.5 text-white text-[6px] md:text-[7px] font-black overflow-hidden truncate leading-tight uppercase tracking-tighter">
                       {holiday.name}
                     </div>
                   )}
@@ -141,45 +141,33 @@ const Holidays: React.FC = () => {
         </div>
 
         {/* List View */}
-        <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 p-4 flex flex-col">
-          <h3 className="font-black text-xs text-slate-900 dark:text-white mb-4 uppercase tracking-widest">Upcoming List</h3>
-          <div className="space-y-2 overflow-y-auto max-h-[400px] pr-1 custom-scrollbar">
+        <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 p-3 md:p-4 flex flex-col">
+          <h3 className="font-black text-[10px] md:text-xs text-slate-900 dark:text-white mb-3 md:mb-4 uppercase tracking-widest">Upcoming Holidays</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 overflow-y-auto max-h-[400px] pr-1 custom-scrollbar">
             {holidays.length > 0 ? holidays.map((holiday) => (
-              <div key={holiday.id} className="group flex items-center p-2 rounded-lg border border-slate-50 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all">
-                <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center rounded-lg mr-3 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  <span className="text-[7px] font-black uppercase leading-none">{new Date(holiday.date).toLocaleString('default', { month: 'short' })}</span>
-                  <span className="text-sm font-black leading-none">{new Date(holiday.date).getDate()}</span>
+              <div key={holiday.id} className="group flex items-center p-1.5 md:p-2 rounded-lg border border-slate-50 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center rounded-lg mr-2 md:mr-3 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <span className="text-[6px] md:text-[7px] font-black uppercase leading-none">{new Date(holiday.date).toLocaleString('default', { month: 'short' })}</span>
+                  <span className="text-[12px] md:text-sm font-black leading-none">{new Date(holiday.date).getDate()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate tracking-tight uppercase">{holiday.name}</p>
-                  <p className="text-[8px] text-slate-500 dark:text-slate-500 font-bold uppercase tracking-tighter">{holiday.type}</p>
+                  <p className="text-[9px] md:text-[11px] font-black text-slate-800 dark:text-slate-200 truncate tracking-tight uppercase leading-tight">{holiday.name}</p>
+                  <p className="text-[7px] md:text-[8px] text-slate-500 dark:text-slate-500 font-bold uppercase tracking-tighter">{holiday.type}</p>
                 </div>
-                <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="hidden md:flex opacity-0 group-hover:opacity-100 transition-opacity">
                   {new Date(holiday.date).setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0) ? (
                     <>
                       <button
                         onClick={() => handleOpenEdit(holiday)}
                         className="p-1 text-slate-400 hover:text-blue-500 transition-colors"
-                        title="Edit Holiday"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                       </button>
-                      <button
-                        onClick={() => handleDeleteHoliday(holiday.id)}
-                        className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
-                        title="Delete Holiday"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                      </button>
                     </>
-                  ) : (
-                    <span className="p-1 text-slate-300 dark:text-slate-700 cursor-not-allowed" title="Past holidays cannot be modified">
-                      <Icons.Search className="w-3.5 h-3.5" />
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
-            )) : <p className="text-center text-slate-500 text-[10px] font-bold py-10 uppercase tracking-widest">No listings</p>}
+            )) : <p className="text-center text-slate-500 text-[9px] font-bold py-10 uppercase tracking-widest col-span-2 lg:col-span-1">No listings</p>}
           </div>
         </div>
       </div>

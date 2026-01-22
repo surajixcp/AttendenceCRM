@@ -8,9 +8,10 @@ interface NavbarProps {
   title: string;
   onToggleSidebar: () => void;
   onNavigate: (screen: ScreenType) => void;
+  onLogout: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ title, onToggleSidebar, onNavigate }) => {
+const Navbar: React.FC<NavbarProps> = ({ title, onToggleSidebar, onNavigate, onLogout }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   return (
@@ -18,11 +19,11 @@ const Navbar: React.FC<NavbarProps> = ({ title, onToggleSidebar, onNavigate }) =
       <div className="flex items-center">
         <button
           onClick={onToggleSidebar}
-          className="p-1.5 mr-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg lg:hidden transition-colors"
+          className="lg:hidden p-1.5 mr-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          <Icons.Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-sm font-black text-slate-800 dark:text-white hidden sm:block tracking-tight uppercase">{title}</h1>
+        <h1 className="text-xs md:text-sm font-black text-slate-800 dark:text-white sm:block tracking-tight uppercase">{title}</h1>
       </div>
 
       <div className="flex items-center space-x-2 md:space-x-4">
@@ -78,7 +79,12 @@ const Navbar: React.FC<NavbarProps> = ({ title, onToggleSidebar, onNavigate }) =
                 Account Settings
               </button>
               <hr className="my-1 border-slate-100 dark:border-slate-800" />
-              <button className="w-full text-left px-4 py-2 text-[11px] font-black text-rose-500 hover:bg-rose-500/10 transition-colors uppercase tracking-widest">Sign Out</button>
+              <button
+                onClick={() => { onLogout(); setShowProfileMenu(false); }}
+                className="w-full text-left px-4 py-2 text-[11px] font-black text-rose-500 hover:bg-rose-500/10 transition-colors uppercase tracking-widest"
+              >
+                Sign Out
+              </button>
             </div>
           )}
         </div>

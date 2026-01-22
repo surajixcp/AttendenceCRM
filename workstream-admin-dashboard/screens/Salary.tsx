@@ -119,49 +119,43 @@ const Salary: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Analytics Card */}
-      <div className="bg-blue-600 dark:bg-blue-700/80 backdrop-blur-xl p-4 md:p-5 rounded-xl text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-blue-500/20">
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-md border border-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div className="bg-blue-600 dark:bg-blue-700/80 backdrop-blur-xl p-3 md:p-5 rounded-xl text-white flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 shadow-lg shadow-blue-500/20">
+        <div className="flex items-center space-x-3 md:space-x-4">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-md border border-white/20">
+            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           </div>
           <div>
-            <p className="text-blue-100 text-[10px] font-black uppercase tracking-widest leading-none mb-1">Monthly Payroll Budget</p>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black tracking-tight">₹{settings?.payroll?.monthlyBudget.toLocaleString() || '0'}<span className="text-blue-200/50 text-sm">.00</span></h2>
+            <p className="text-blue-100 text-[8px] md:text-[10px] font-black uppercase tracking-widest leading-none mb-1">Payroll Budget</p>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <h2 className="text-xl md:text-2xl font-black tracking-tight">₹{settings?.payroll?.monthlyBudget.toLocaleString() || '0'}<span className="text-blue-200/50 text-[10px] md:text-sm">.00</span></h2>
               <button
                 onClick={() => setIsSettingsModalOpen(true)}
                 className="p-1 hover:bg-white/20 rounded-md transition-colors"
-                title="Edit Budget & Date"
               >
-                <Edit2 className="w-3.5 h-3.5" />
+                <Edit2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
               </button>
             </div>
-            {settings?.payroll?.salaryDate && (
-              <p className="text-blue-200/60 text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
-                <Calendar className="w-2.5 h-2.5" /> Next Release: Day {settings.payroll.salaryDate}
-              </p>
-            )}
           </div>
         </div>
         <div className="flex space-x-2">
-          <button className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Report</button>
+          <button className="flex-1 md:flex-none px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all">Report</button>
           <button
             onClick={handleProcessBatch}
-            className="px-4 py-1.5 bg-white text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95"
+            className="flex-1 md:flex-none px-3 md:px-4 py-1.5 bg-white text-blue-600 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95"
           >
-            Process Batch
+            Process
           </button>
         </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
-          <h3 className="font-black text-sm text-slate-800 dark:text-white uppercase tracking-tight">Employee Salary List</h3>
-          <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Total: {salaries.length}</span>
-          </div>
+        <div className="p-3 md:p-4 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
+          <h3 className="font-black text-[12px] md:text-sm text-slate-800 dark:text-white uppercase tracking-tight">Salary Registry</h3>
+          <span className="text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Records: {salaries.length}</span>
         </div>
-        <div className="overflow-x-auto custom-scrollbar">
+
+        {/* Desktop View Table */}
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800/50">
               <tr className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">
@@ -197,11 +191,7 @@ const Salary: React.FC = () => {
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors"
-                        title="Edit Record"
-                      >
+                      <button onClick={() => openEditModal(item)} className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       {item.status === 'Unpaid' ? (
@@ -215,6 +205,40 @@ const Salary: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View Cards */}
+        <div className="md:hidden p-3 grid grid-cols-2 gap-3">
+          {salaries.map((item) => (
+            <div key={item.id} className="bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 p-2.5 rounded-xl flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center text-[9px] font-black text-blue-600 border border-blue-100 dark:border-blue-900/50">
+                  {item.employeeName[0]}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black text-slate-800 dark:text-slate-200 truncate uppercase mt-0.5">{item.employeeName}</p>
+                  <p className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter leading-none">{item.month}</p>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-200/50 dark:border-slate-800">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Net Pay</p>
+                <div className="flex items-end justify-between">
+                  <span className="text-[11px] font-black text-slate-900 dark:text-white">₹{item.netPay.toLocaleString()}</span>
+                  <span className={`px-1 py-0.5 text-[7px] font-black uppercase rounded-md ${item.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>{item.status}</span>
+                </div>
+              </div>
+              <div className="flex gap-1.5 pt-1">
+                <button onClick={() => openEditModal(item)} className="flex-1 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg flex items-center justify-center text-slate-400">
+                  <Edit2 className="w-3 h-3" />
+                </button>
+                {item.status === 'Unpaid' ? (
+                  <button onClick={() => handlePay(item.id)} className="flex-[2] py-1.5 bg-blue-600 text-white rounded-lg text-[8px] font-black uppercase tracking-widest">Pay</button>
+                ) : (
+                  <button className="flex-[2] py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-lg text-[8px] font-black uppercase tracking-widest">Rec</button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

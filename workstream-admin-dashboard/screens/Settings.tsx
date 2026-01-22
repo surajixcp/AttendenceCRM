@@ -152,8 +152,8 @@ const Settings: React.FC = () => {
     }
   };
 
-  const inputClasses = "w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-[11px] font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400";
-  const labelClasses = "text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-0.5 mb-1 block";
+  const inputClasses = "w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 md:p-2 text-[10px] md:text-[11px] font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400";
+  const labelClasses = "text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-0.5 mb-1 block";
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 pb-12">
@@ -249,8 +249,8 @@ const Settings: React.FC = () => {
             </div>
           </div>
           <div className="flex justify-end pt-2">
-            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/10 transition-all active:scale-95">
-              Update Profile
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-5 md:px-6 py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/10 transition-all active:scale-95 w-full md:w-auto">
+              Sync Profile
             </button>
           </div>
         </form>
@@ -316,7 +316,7 @@ const Settings: React.FC = () => {
 
           <div className="space-y-4">
             <h4 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-blue-600 rounded-full"></div>
+              <div className="w-3 md:w-4 h-0.5 bg-blue-600 rounded-full"></div>
               Check-in Protocol
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -361,7 +361,7 @@ const Settings: React.FC = () => {
 
           <div className="space-y-4">
             <h4 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-blue-600 rounded-full"></div>
+              <div className="w-3 md:w-4 h-0.5 bg-blue-600 rounded-full"></div>
               Weekend Policy
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -376,7 +376,7 @@ const Settings: React.FC = () => {
                     onChange={() => toggleWeekendDay(day)}
                     className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-0 transition-all cursor-pointer"
                   />
-                  <span className="text-[11px] font-black uppercase tracking-tight">{day}</span>
+                  <span className="text-[10px] md:text-[11px] font-black uppercase tracking-tight">{day}</span>
                 </label>
               ))}
             </div>
@@ -384,7 +384,7 @@ const Settings: React.FC = () => {
 
           <div className="space-y-4">
             <h4 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-blue-600 rounded-full"></div>
+              <div className="w-3 md:w-4 h-0.5 bg-blue-600 rounded-full"></div>
               Office Geofencing
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -228,7 +228,7 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-4">
       {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center space-x-2 w-full md:w-auto">
           <div className="relative flex-1 md:flex-none">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
@@ -242,7 +242,7 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-[11px] font-bold rounded-lg focus:ring-2 focus:ring-blue-500/50 block pl-9 p-2 w-full md:w-64 shadow-sm outline-none placeholder:text-slate-400 dark:text-slate-200 transition-all"
+              className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-[10px] md:text-[11px] font-bold rounded-lg focus:ring-2 focus:ring-blue-500/50 block pl-8 md:pl-9 p-1.5 md:p-2 w-full md:w-64 shadow-sm outline-none placeholder:text-slate-400 dark:text-slate-200 transition-all"
             />
           </div>
 
@@ -277,9 +277,9 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
 
         <button
           onClick={openAddModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/10 transition-all active:scale-95"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-lg flex items-center justify-center text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/10 transition-all active:scale-95"
         >
-          <Icons.Plus className="w-3.5 h-3.5 mr-1.5" />
+          <Icons.Plus className="w-3 md:w-3.5 h-3 md:h-3.5 mr-1 md:mr-1.5" />
           <span>Register Staff</span>
         </button>
       </div>
@@ -288,34 +288,34 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800/50">
-              <tr className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">
-                <th className="px-4 py-3">Identity</th>
-                <th className="px-4 py-3">Role & Office</th>
-                <th className="px-4 py-3">Communication</th>
-                <th className="px-4 py-3">Employment</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+              <tr className="text-slate-400 dark:text-slate-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest">
+                <th className="px-3 md:px-4 py-2.5 md:py-3">Identity</th>
+                <th className="px-3 md:px-4 py-2.5 md:py-3 text-center md:text-left">Role</th>
+                <th className="px-4 py-3 hidden md:table-cell">Communication</th>
+                <th className="px-4 py-3 hidden md:table-cell">Employment</th>
+                <th className="px-3 md:px-4 py-2.5 md:py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
               {paginatedEmployees.length > 0 ? paginatedEmployees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="relative">
-                        <img className="h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm object-cover group-hover:scale-105 transition-transform" src={emp.image} alt="" />
-                        <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-2 border-white dark:border-slate-900 ${emp.status === 'Active' ? 'bg-emerald-500' : emp.status === 'On Leave' ? 'bg-amber-500' : 'bg-rose-500'}`}></span>
+                        <img className="h-6 w-6 md:h-8 md:w-8 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm object-cover group-hover:scale-105 transition-transform" src={emp.image} alt="" />
+                        <span className={`absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full border border-white dark:border-slate-900 ${emp.status === 'Active' ? 'bg-emerald-500' : emp.status === 'On Leave' ? 'bg-amber-500' : 'bg-rose-500'}`}></span>
                       </div>
-                      <div className="ml-3 leading-tight">
-                        <div className="text-[11px] font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">{emp.name}</div>
-                        <div className="text-[8px] font-black text-slate-400 dark:text-slate-500 tracking-widest uppercase">ID: {emp.id.substring(emp.id.length - 6).toUpperCase()}</div>
+                      <div className="ml-2 md:ml-3 leading-tight">
+                        <div className="text-[10px] md:text-[11px] font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">{emp.name}</div>
+                        <div className="text-[7px] md:text-[8px] font-black text-slate-400 dark:text-slate-500 tracking-widest uppercase truncate max-w-[80px] md:max-w-none">ID: {emp.id.substring(emp.id.length - 6).toUpperCase()}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{emp.role}</div>
-                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">{emp.designation}</div>
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap text-center md:text-left">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{emp.role}</div>
+                    <div className="text-[8px] md:text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider hidden md:block">{emp.designation}</div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap hidden md:table-cell">
                     <div className="flex flex-col">
                       <div className="text-[10px] text-blue-600 dark:text-blue-400 font-black tracking-tight">{emp.email}</div>
                       <div className="flex items-center gap-1.5 mt-0.5">
@@ -325,7 +325,7 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap hidden md:table-cell">
                     <div className="flex flex-col gap-1">
                       <span className={`w-fit px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-md ${emp.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
                         emp.status === 'On Leave' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' :
@@ -337,36 +337,36 @@ const Employees: React.FC<EmployeesProps> = ({ onNavigate }) => {
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter ml-0.5">{emp.workMode}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-right space-x-1 flex items-center justify-end">
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap text-right space-x-0.5 md:space-x-1 flex items-center justify-end">
                     <button
                       onClick={() => handleStatusToggle(emp)}
-                      className={`p-1.5 rounded-lg transition-all active:scale-90 ${emp.status === 'Blocked' ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-400/10' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-400/10'}`}
+                      className={`p-1 md:p-1.5 rounded-lg transition-all active:scale-90 ${emp.status === 'Blocked' ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-400/10' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-400/10'}`}
                       title={emp.status === 'Blocked' ? 'Unblock User' : 'Block User'}
                     >
                       {emp.status === 'Blocked' ? (
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 11V7a4 4 0 118 0m4 4V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <svg className="w-3 md:w-3.5 h-3 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 11V7a4 4 0 118 0m4 4V7a4 4 0 00-8 0v4h8z"></path></svg>
                       ) : (
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <svg className="w-3 md:w-3.5 h-3 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                       )}
                     </button>
                     <button
                       onClick={() => handleViewOverview(emp.id)}
-                      className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-400/10 p-1.5 rounded-lg transition-all active:scale-90"
+                      className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-400/10 p-1 md:p-1.5 rounded-lg transition-all active:scale-90"
                       title="View Overview"
                     >
-                      <Icons.Eye className="w-3.5 h-3.5" />
+                      <Icons.Eye className="w-3 md:w-3.5 h-3 md:h-3.5" />
                     </button>
                     <button
                       onClick={() => openEditModal(emp)}
-                      className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-400/10 p-1.5 rounded-lg transition-all active:scale-90"
+                      className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-400/10 p-1 md:p-1.5 rounded-lg transition-all active:scale-90"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                      <svg className="w-3 md:w-3.5 h-3 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     </button>
                     <button
                       onClick={() => setDeletingId(emp.id)}
-                      className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-400/10 p-1.5 rounded-lg transition-all active:scale-90"
+                      className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-400/10 p-1 md:p-1.5 rounded-lg transition-all active:scale-90"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      <svg className="w-3 md:w-3.5 h-3 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                   </td>
                 </tr>

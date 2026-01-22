@@ -41,13 +41,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onNavigate, isOpen, onT
     { id: 'Salary', label: 'Salary', icon: Icons.Salary },
     { id: 'Holidays', label: 'Holidays', icon: Icons.Holidays },
     { id: 'Meetings', label: 'Meetings', icon: Icons.Meetings },
-    { id: 'Settings', label: 'Settings', icon: Icons.Settings }
+    { id: 'Settings', label: 'Settings', icon: Icons.Settings },
+    { id: 'Profile', label: 'Profile', icon: Icons.User }
   ];
 
   return (
     <aside
-      className={`bg-white dark:bg-slate-900 shadow-xl dark:shadow-none border-r border-slate-200 dark:border-slate-800/50 transition-all duration-300 ease-in-out flex flex-col z-50
-        ${isOpen ? 'w-56' : 'w-16'} fixed inset-y-0 left-0 lg:static transition-colors`}
+      className={`bg-white dark:bg-slate-900 shadow-xl dark:shadow-none border-r border-slate-200 dark:border-slate-800/50 transition-all duration-300 ease-in-out flex flex-col z-[60]
+        ${isOpen ? 'w-56 translate-x-0' : 'w-16 -translate-x-full lg:translate-x-0'} fixed inset-y-0 left-0 lg:static transition-colors`}
     >
       <div className="flex items-center justify-between h-12 px-4 border-b border-slate-100 dark:border-slate-800/50">
         <div className={`flex items-center space-x-2 overflow-hidden transition-all duration-300 ${!isOpen && 'lg:scale-0 lg:hidden'}`}>
@@ -67,6 +68,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onNavigate, isOpen, onT
             </div>
           </div>
         )}
+        {isOpen && (
+          <button
+            onClick={onToggle}
+            className="lg:hidden p-1 text-slate-400 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 px-2.5 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
@@ -76,7 +85,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onNavigate, isOpen, onT
           return (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => {
+                onNavigate(item.id);
+                if (window.innerWidth < 1024) onToggle();
+              }}
               className={`w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 group relative
                 ${isActive
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'

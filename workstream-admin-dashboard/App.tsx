@@ -15,6 +15,7 @@ import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
 import LoginScreen from './screens/Login';
 import EmployeeOverviewScreen from './screens/EmployeeOverview';
+import MobileNav from './components/MobileNav';
 
 const AUTH_KEY = 'workstream_auth_session';
 
@@ -113,6 +114,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen overflow-visible text-slate-900 dark:text-slate-100 bg-white dark:bg-[#020617] transition-colors duration-300 selection:bg-blue-500/30 selection:text-blue-200">
+      {/* Mobile Backdrop Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] z-[55] animate-in fade-in duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         activeScreen={activeScreen}
         onNavigate={handleNavigate}
@@ -126,13 +135,16 @@ const App: React.FC = () => {
           title={activeScreen}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onNavigate={handleNavigate}
+          onLogout={handleLogout}
         />
 
-        <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-5 scroll-smooth custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-2 pb-20 md:p-4 lg:p-5 scroll-smooth custom-scrollbar">
           <div key={screenKey} className="max-w-[1600px] mx-auto animate-fade-scale">
             {renderScreen()}
           </div>
         </main>
+
+        <MobileNav activeScreen={activeScreen} onNavigate={handleNavigate} />
       </div>
     </div>
   );

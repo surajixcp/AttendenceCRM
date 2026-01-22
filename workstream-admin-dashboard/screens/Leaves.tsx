@@ -130,7 +130,7 @@ const Leaves: React.FC = () => {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === status
+              className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === status
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/10'
                 : 'bg-white dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
@@ -145,66 +145,67 @@ const Leaves: React.FC = () => {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800/50">
-              <tr className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">
-                <th className="px-4 py-3">Employee</th>
-                <th className="px-4 py-3">Mode</th>
-                <th className="px-4 py-3">Timeline</th>
-                <th className="px-4 py-3">Duration</th>
-                <th className="px-4 py-3">Reasoning</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+              <tr className="text-slate-400 dark:text-slate-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest">
+                <th className="px-3 md:px-4 py-2.5 md:py-3">Staff</th>
+                <th className="px-3 md:px-4 py-2.5 md:py-3 text-center md:text-left">Details</th>
+                <th className="px-4 py-3 hidden md:table-cell">Timeline</th>
+                <th className="px-4 py-3 hidden md:table-cell">Duration</th>
+                <th className="px-4 py-3 hidden md:table-cell">Reasoning</th>
+                <th className="px-3 md:px-4 py-2.5 md:py-3">Status</th>
+                <th className="px-3 md:px-4 py-2.5 md:py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
               {filteredLeaves.length > 0 ? filteredLeaves.map((leave) => (
                 <tr key={leave._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-7 h-7 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20 flex items-center justify-center text-[10px] font-black text-blue-600 dark:text-blue-400">
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap">
+                    <div className="flex items-center space-x-1.5 md:space-x-2">
+                      <div className="w-6 h-6 md:w-7 md:h-7 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20 flex items-center justify-center text-[9px] md:text-[10px] font-black text-blue-600 dark:text-blue-400">
                         {(leave.user?.name || '?')[0]}
                       </div>
-                      <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{leave.user?.name || 'Anonymous Staff'}</span>
+                      <span className="text-[10px] md:text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight truncate max-w-[70px] md:max-w-none">{leave.user?.name || 'Anonymous Staff'}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-500/20 uppercase tracking-widest">{leave.leaveType}</span>
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap">
+                    <div className="text-[8px] md:text-[9px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-1 md:px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-500/20 uppercase tracking-widest w-fit mx-auto md:mx-0">{leave.leaveType}</div>
+                    <div className="text-[7px] text-slate-400 font-bold uppercase mt-0.5 md:hidden text-center">{leave.leaveDuration}d</div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter">
+                  <td className="px-4 py-3 whitespace-nowrap text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter hidden md:table-cell">
                     {new Date(leave.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - {new Date(leave.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-[10px] font-black text-slate-600 dark:text-slate-400">
+                  <td className="px-4 py-3 whitespace-nowrap text-[10px] font-black text-slate-600 dark:text-slate-400 hidden md:table-cell">
                     {leave.leaveDuration === 0.5 ? '0.5 Day' :
                       leave.leaveDuration > 1 ? `${leave.leaveDuration} Days` : '1 Day'}
                   </td>
-                  <td className="px-4 py-3 max-w-[200px] truncate">
+                  <td className="px-4 py-3 max-w-[200px] truncate hidden md:table-cell">
                     <p className="text-[10px] text-slate-500 dark:text-slate-500 font-bold italic truncate">"{leave.reason}"</p>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-md ${leave.status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20' :
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap">
+                    <span className={`px-1.5 md:px-2 py-0.5 text-[7px] md:text-[8px] font-black uppercase tracking-widest rounded-md ${leave.status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20' :
                       leave.status === 'pending' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20'
                       }`}>
                       {leave.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-right">
+                  <td className="px-3 md:px-4 py-2.5 md:py-3 whitespace-nowrap text-right">
                     {leave.status === 'pending' ? (
-                      <div className="flex justify-end gap-1.5">
+                      <div className="flex justify-end gap-1">
                         <button
                           onClick={() => handleApprove(leave._id)}
-                          className="px-2 py-1 bg-emerald-600 text-white text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-emerald-700 shadow-lg shadow-emerald-500/10 transition-all active:scale-95"
+                          className="px-1.5 md:px-2 py-1 bg-emerald-600 text-white text-[7px] md:text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-emerald-700 shadow-lg shadow-emerald-500/10 transition-all active:scale-95"
                         >
-                          Approve
+                          OK
                         </button>
                         <button
                           onClick={() => handleReject(leave._id)}
-                          className="px-2 py-1 bg-rose-600 text-white text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-rose-700 shadow-lg shadow-rose-500/10 transition-all active:scale-95"
+                          className="px-1.5 md:px-2 py-1 bg-rose-600 text-white text-[7px] md:text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-rose-700 shadow-lg shadow-rose-500/10 transition-all active:scale-95"
                         >
-                          Reject
+                          NO
                         </button>
                       </div>
                     ) : (
-                      <button className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">
-                        <Icons.Search className="w-3.5 h-3.5" />
+                      <button className="p-1 md:p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">
+                        <Icons.Search className="w-3 md:w-3.5 h-3 md:h-3.5" />
                       </button>
                     )}
                   </td>
