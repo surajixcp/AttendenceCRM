@@ -174,6 +174,177 @@ const checkOut = async (req, res) => {
     }
 };
 
+// @desc    Update attendance timing (Admin only)
+// @route   PUT /attendance/admin/update/:attendanceId
+// @access  Private (Admin/Sub-admin)
+const updateAttendanceTiming = async (req, res) => {
+    try {
+        const { checkIn, checkOut } = req.body;
+        const { attendanceId } = req.params;
+
+        const attendance = await Attendance.findById(attendanceId);
+        if (!attendance) {
+            return res.status(404).json({ message: 'Attendance record not found' });
+        }
+
+        const settings = await Settings.findOne() || {};
+
+        // Update check-in if provided
+        if (checkIn) {
+            attendance.checkIn = new Date(checkIn);
+        }
+
+        // Update check-out if provided
+        if (checkOut) {
+            attendance.checkOut = new Date(checkOut);
+        }
+
+        // Recalculate working hours if both times exist
+        if (attendance.checkIn && attendance.checkOut) {
+            const durationMs = attendance.checkOut - attendance.checkIn;
+            const hoursWorked = durationMs / (1000 * 60 * 60);
+            attendance.workingHours = hoursWorked.toFixed(2);
+
+            // Calculate standard shift
+            let standardShift = 9;
+            if (settings.workingHours && settings.workingHours.checkIn && settings.workingHours.checkOut) {
+                const [inH, inM] = settings.workingHours.checkIn.split(':').map(Number);
+                const [outH, outM] = settings.workingHours.checkOut.split(':').map(Number);
+                const shiftStart = inH + (inM / 60);
+                const shiftEnd = outH + (outM / 60);
+                let shiftLength = shiftEnd - shiftStart;
+                if (shiftLength < 0) shiftLength += 24;
+                if (shiftLength > 0) standardShift = shiftLength;
+            }
+
+            // Calculate overtime
+            if (hoursWorked > standardShift) {
+                attendance.overtimeHours = (hoursWorked - standardShift).toFixed(2);
+            } else {
+                attendance.overtimeHours = 0;
+            }
+
+            // Update status based on hours worked
+            if (hoursWorked < 4) {
+                attendance.status = 'half_day';
+            } else if (hoursWorked < standardShift * 0.8) {
+                attendance.status = 'half_day';
+            } else {
+                // Check if late based on check-in time
+                if (settings.workingHours && settings.workingHours.checkIn) {
+                    const [h, m] = settings.workingHours.checkIn.split(':').map(Number);
+                    const checkInDate = new Date(attendance.checkIn);
+                    const policyTime = new Date(checkInDate);
+                    policyTime.setHours(h, m, 0, 0);
+
+                    const graceMs = (settings.workingHours.gracePeriod || 0) * 60 * 1000;
+                    const limitTime = new Date(policyTime.getTime() + graceMs);
+
+                    if (checkInDate > limitTime) {
+                        attendance.status = 'late';
+                    } else {
+                        attendance.status = 'present';
+                    }
+                } else {
+                    attendance.status = 'present';
+                }
+            }
+        }
+
+        await attendance.save();
+        res.json({ message: 'Attendance timing updated successfully', attendance });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Create manual attendance record (Admin only)
+// @route   POST /attendance/admin/create
+// @access  Private (Admin/Sub-admin)
+const createManualAttendance = async (req, res) => {
+    try {
+        const { userId, date, checkIn, checkOut, status, notes } = req.body;
+
+        if (!userId || !date) {
+            return res.status(400).json({ message: 'User ID and date are required' });
+        }
+
+        // Check if attendance already exists for this date
+        const dateObj = new Date(date);
+        dateObj.setHours(0, 0, 0, 0);
+
+        const existingAttendance = await Attendance.findOne({
+            user: userId,
+            date: dateObj
+        });
+
+        if (existingAttendance) {
+            return res.status(400).json({ message: 'Attendance record already exists for this date' });
+        }
+
+        const settings = await Settings.findOne() || {};
+
+        // Create attendance object
+        const attendanceData = {
+            user: userId,
+            date: dateObj,
+            status: status || 'present',
+            notes: notes || 'Manually created by admin'
+        };
+
+        // Add check-in if provided
+        if (checkIn) {
+            attendanceData.checkIn = new Date(checkIn);
+        }
+
+        // Add check-out if provided
+        if (checkOut) {
+            attendanceData.checkOut = new Date(checkOut);
+        }
+
+        // Calculate working hours if both times exist
+        if (checkIn && checkOut) {
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const durationMs = checkOutDate - checkInDate;
+            const hoursWorked = durationMs / (1000 * 60 * 60);
+            attendanceData.workingHours = hoursWorked.toFixed(2);
+
+            // Calculate standard shift
+            let standardShift = 9;
+            if (settings.workingHours && settings.workingHours.checkIn && settings.workingHours.checkOut) {
+                const [inH, inM] = settings.workingHours.checkIn.split(':').map(Number);
+                const [outH, outM] = settings.workingHours.checkOut.split(':').map(Number);
+                const shiftStart = inH + (inM / 60);
+                const shiftEnd = outH + (outM / 60);
+                let shiftLength = shiftEnd - shiftStart;
+                if (shiftLength < 0) shiftLength += 24;
+                if (shiftLength > 0) standardShift = shiftLength;
+            }
+
+            // Calculate overtime
+            if (hoursWorked > standardShift) {
+                attendanceData.overtimeHours = (hoursWorked - standardShift).toFixed(2);
+            }
+
+            // Auto-determine status if not provided
+            if (!status) {
+                if (hoursWorked < 4) {
+                    attendanceData.status = 'half_day';
+                } else {
+                    attendanceData.status = 'present';
+                }
+            }
+        }
+
+        const attendance = await Attendance.create(attendanceData);
+        res.status(201).json({ message: 'Manual attendance record created successfully', attendance });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 // @desc    Get daily attendance for a user
 // @route   GET /attendance/daily/:userId
 // @access  Private
@@ -696,6 +867,8 @@ const exportAttendanceToExcel = async (req, res) => {
 module.exports = {
     checkIn,
     checkOut,
+    updateAttendanceTiming,
+    createManualAttendance,
     getDailyAttendance,
     getMonthlyAttendance,
     getAttendanceSummary,
