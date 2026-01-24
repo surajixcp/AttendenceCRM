@@ -223,6 +223,15 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
     });
   };
 
+  const getGeolocationErrorMessage = (error: any) => {
+    switch (error.code) {
+      case 1: return "Location denied. Enable permissions in browser address bar.";
+      case 2: return "Location unavailable. Check GPS/Network.";
+      case 3: return "Location timeout. Please retry.";
+      default: return error.message || "Location error.";
+    }
+  };
+
   const handleCheckIn = async () => {
     try {
       setNotification({ type: 'info', message: 'Detecting live location...' });
@@ -231,10 +240,21 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
       setNotification({ type: 'success', message: 'Check-in Synchronized Successfully!' });
       fetchDashboardData();
     } catch (error: any) {
-      console.error("Check-in failed", error);
+      let message = "Check-in failed. Ensure location is enabled.";
+
+      if (error.code) {
+        console.warn("Geolocation check-in failed:", getGeolocationErrorMessage(error));
+        message = getGeolocationErrorMessage(error);
+      } else if (error.response?.data?.message) {
+        console.error("Server check-in error:", error);
+        message = error.response.data.message;
+      } else {
+        console.error("Unknown check-in error:", error);
+      }
+
       setNotification({
         type: 'error',
-        message: error.response?.data?.message || "Check-in failed. Ensure location is enabled."
+        message
       });
     }
   };
@@ -247,10 +267,21 @@ const DashboardScreen: React.FC<DashboardProps> = ({ onNavigate }) => {
       setNotification({ type: 'success', message: 'Check-out Synchronized Successfully!' });
       fetchDashboardData();
     } catch (error: any) {
-      console.error("Check-out failed", error);
+      let message = "Check-out failed. Ensure location is enabled.";
+
+      if (error.code) {
+        console.warn("Geolocation check-out failed:", getGeolocationErrorMessage(error));
+        message = getGeolocationErrorMessage(error);
+      } else if (error.response?.data?.message) {
+        console.error("Server check-out error:", error);
+        message = error.response.data.message;
+      } else {
+        console.error("Unknown check-out error:", error);
+      }
+
       setNotification({
         type: 'error',
-        message: error.response?.data?.message || "Check-out failed. Ensure location is enabled."
+        message
       });
     }
   };
