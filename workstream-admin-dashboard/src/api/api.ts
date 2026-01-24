@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: '/api', // Vite proxy will handle this
+    baseURL: 'https://attendencecrm.onrender.com',
     headers: {
         'Content-Type': 'application/json',
     },
