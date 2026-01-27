@@ -85,6 +85,9 @@ const checkIn = async (req, res) => {
 
         res.status(201).json(attendance);
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'You have already checked in today.' });
+        }
         res.status(500).json({ message: error.message });
     }
 };
