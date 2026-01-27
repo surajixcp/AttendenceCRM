@@ -9,6 +9,7 @@ import AttendanceScreen from './screens/Attendance';
 import LeavesScreen from './screens/Leaves';
 import ProjectsScreen from './screens/Projects';
 import SalaryScreen from './screens/Salary';
+import ReportsScreen from './screens/ReportsScreen';
 import HolidaysScreen from './screens/Holidays';
 import MeetingsScreen from './screens/Meetings';
 import SettingsScreen from './screens/Settings';
@@ -97,6 +98,7 @@ const App: React.FC = () => {
       case 'Leaves': return <LeavesScreen />;
       case 'Projects': return <ProjectsScreen />;
       case 'Salary': return <SalaryScreen />;
+      case 'Reports': return <ReportsScreen />;
       case 'Holidays': return <HolidaysScreen />;
       case 'Meetings': return <MeetingsScreen />;
       case 'Settings': return <SettingsScreen />;

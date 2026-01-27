@@ -17,7 +17,8 @@ import {
   Calendar,
   Settings,
   HelpCircle,
-  Star
+  Star,
+  ClipboardList
 } from 'lucide-react';
 import { Screen, UserProfile, AppNotification } from './types';
 import { authService } from './services/authService';
@@ -32,6 +33,7 @@ import ProjectsScreen from './screens/ProjectsScreen';
 import MeetingsScreen from './screens/MeetingsScreen';
 import HolidaysScreen from './screens/HolidaysScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import ReportsScreen from './screens/ReportsScreen';
 import LoginScreen from './screens/LoginScreen';
 import MobileNav from './components/MobileNav';
 
@@ -128,6 +130,7 @@ const App: React.FC = () => {
     { id: 'Projects', icon: Briefcase, label: 'Projects' },
     { id: 'Meetings', icon: Users, label: 'Meetings' },
     { id: 'Holidays', icon: Star, label: 'Holidays' },
+    { id: 'Reports', icon: ClipboardList, label: 'SOD/EOD' },
     { id: 'Profile', icon: User, label: 'Profile' },
   ];
 
@@ -147,6 +150,7 @@ const App: React.FC = () => {
       case 'Projects': return <ProjectsScreen />;
       case 'Meetings': return <MeetingsScreen />;
       case 'Holidays': return <HolidaysScreen />;
+      case 'Reports': return <ReportsScreen />;
       case 'Profile': return user ? <ProfileScreen user={user} /> : null;
       default: return <DashboardScreen onNavigate={handleScreenChange} />;
     }

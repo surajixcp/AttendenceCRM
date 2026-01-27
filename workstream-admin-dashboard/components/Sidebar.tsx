@@ -41,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onNavigate, isOpen, onT
     { id: 'Salary', label: 'Salary', icon: Icons.Salary },
     { id: 'Holidays', label: 'Holidays', icon: Icons.Holidays },
     { id: 'Meetings', label: 'Meetings', icon: Icons.Meetings },
+    { id: 'Reports', label: 'Reports', icon: Icons.Attendance },
     { id: 'Settings', label: 'Settings', icon: Icons.Settings },
     { id: 'Profile', label: 'Profile', icon: Icons.User }
   ];

@@ -10,6 +10,7 @@ export type ScreenType =
   | 'Meetings'
   | 'Settings'
   | 'Profile'
+  | 'Reports'
   | 'EmployeeOverview';
 
 export interface Employee {

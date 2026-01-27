@@ -14,6 +14,7 @@ const meetingRoutes = require('./routes/meetingRoutes');
 const holidayRoutes = require('./routes/holidayRoutes');
 const salaryRoutes = require('./routes/salaryRoutes');
 const settingRoutes = require('./routes/settingRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const uploadRoutes = require('./routes/uploadRoutes');
 
@@ -35,6 +36,7 @@ app.use('/meetings', meetingRoutes);
 app.use('/holidays', holidayRoutes);
 app.use('/salaries', salaryRoutes);
 app.use('/settings', settingRoutes);
+app.use('/reports', reportRoutes);
 
 // Health Check
 app.get('/', (req, res) => {

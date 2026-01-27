@@ -1,5 +1,5 @@
 
-export type Screen = 'Dashboard' | 'Attendance' | 'Leaves' | 'Projects' | 'Meetings' | 'Profile' | 'Holidays';
+export type Screen = 'Dashboard' | 'Attendance' | 'Leaves' | 'Projects' | 'Meetings' | 'Profile' | 'Holidays' | 'Reports';
 
 export interface Holiday {
   id: string;
